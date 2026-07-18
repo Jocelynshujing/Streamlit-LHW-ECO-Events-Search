@@ -50,7 +50,7 @@ elif eco_impact == "Water Supply / Scarcity":
     impact_terms = '("water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk")'
 else:
     # "All Impacts" combines them using OR logic
-    impact_terms = '("fish kill" OR "mass mortality" OR "fish die-off" OR "mass casualty event" OR "algal bloom" OR "cyanobacteria" OR "blue-green algae" OR "harmful algal bloom" OR "microcystis" OR "ecosystem collapse" OR "ecological degradation" OR "habitat loss" OR "biodiversity loss" OR "water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk")'
+    impact_terms = '("fish kill" OR "mass mortality" OR "algal bloom" OR "cyanobacteria" OR "harmful algal bloom" OR "habitat loss" OR "biodiversity loss" OR "water scarcity" OR "water shortage")'
 
 # --- NEW: Map Continents to Boolean Geo-Terms ---
 if continent == "North America":
