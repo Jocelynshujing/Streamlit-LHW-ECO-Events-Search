@@ -20,6 +20,12 @@ eco_impact = st.sidebar.selectbox(
     ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria", "Oxygen Depletion / Hypoxia"]
 )
 
+# --- NEW: Continent Filter ---
+continent = st.sidebar.selectbox(
+    "Continent / Region",
+    ["Global (All)", "North America", "Asia", "Europe", "Africa", "South America", "Oceania"]
+)
+
 # Build the Boolean Query dynamically based on user selections
 base_water_terms = '(lake OR reservoir OR lagoon OR "freshwater ecosystem")'
 base_heat_terms = '(heatwave OR "extreme heat" OR "record temperature" OR "thermal stress")'
@@ -34,9 +40,28 @@ else:
     # "All Impacts" combines them using OR logic
     impact_terms = '("fish kill" OR "algae bloom" OR cyanobacteria OR hypoxia OR "oxygen depletion")'
 
-# Final combined query string
-final_query = f"{base_water_terms} AND {base_heat_terms} AND {impact_terms}"
+# --- NEW: Map Continents to Boolean Geo-Terms ---
+if continent == "North America":
+    geo_terms = '("North America" OR "United States" OR USA OR Canada OR Mexico)'
+elif continent == "Asia":
+    geo_terms = '(Asia OR China OR India OR Japan OR "Southeast Asia" OR Vietnam OR Thailand)'
+elif continent == "Europe":
+    geo_terms = '(Europe OR UK OR "United Kingdom" OR France OR Germany OR Spain OR Italy)'
+elif continent == "Africa":
+    geo_terms = '(Africa OR Kenya OR "South Africa" OR Nigeria OR Egypt OR Uganda)'
+elif continent == "South America":
+    geo_terms = '("South America" OR Brazil OR Argentina OR Colombia OR Peru)'
+elif continent == "Oceania":
+    geo_terms = '(Oceania OR Australia OR "New Zealand" OR Fiji)'
+else:
+    geo_terms = None
 
+# Final combined query string (Injecting geo_terms if selected)
+if geo_terms:
+    final_query = f"{base_water_terms} AND {base_heat_terms} AND {impact_terms} AND {geo_terms}"
+else:
+    final_query = f"{base_water_terms} AND {base_heat_terms} AND {impact_terms}"
+    
 # Show the query to the user so they see the tool's inner logic
 with st.expander("Show Active Boolean Search Query Logic"):
     st.code(final_query, language="text")
