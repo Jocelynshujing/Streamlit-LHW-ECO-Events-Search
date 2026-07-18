@@ -26,6 +26,9 @@ continent = st.sidebar.selectbox(
     ["Global (All)", "North America", "Asia", "Europe", "Africa", "South America", "Oceania"]
 )
 
+# Sidebar Result Limit
+max_records = st.sidebar.slider("Maximum Articles to Retrieve", min_value=10, max_value=100, value=20, step=10)
+
 # Build the Boolean Query dynamically based on user selections
 base_water_terms = '(lake OR reservoir OR lagoon OR "freshwater ecosystem")'
 base_heat_terms = '(heatwave OR "extreme heat" OR "record temperature" OR "thermal stress")'
