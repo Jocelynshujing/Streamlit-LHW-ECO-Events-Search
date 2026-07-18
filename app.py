@@ -82,17 +82,17 @@ with st.expander("Show Active Search & Media Filter Logic"):
     st.code(final_query, language="text")
     
 # --- Performance Optimization: Cached Ingestion Function ---
-@st.cache_data(show_spinner=False, ttl=1800)  # Keeps data cached for 30 minutes to reduce layout API overhead
-def fetch_elite_news(query, sources_str, api_token, limit):
-    # Using 'everything' endpoint to safely support your deep Boolean structures
+@st.cache_data(show_spinner=False, ttl=1800)
+def fetch_filtered_news(query, tier_choice, api_token, limit):
     url = "https://newsapi.org/v2/everything"
     params = {
         "q": query,
         "pageSize": limit,
-        "sortBy": "publishedAt",   # Brings back breaking live news priority
+        "sortBy": "publishedAt",
         "language": "en",
         "apiKey": api_token
     }
+    
     # Inject routing logic based on user's Media Tier selection
     if tier_choice == "Elite Media Only":
         params["sources"] = elite_sources
