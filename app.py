@@ -17,7 +17,7 @@ api_key = st.sidebar.text_input("Enter NewsAPI Key", type="password", help="Get 
 st.sidebar.header("Filter Criteria")
 eco_impact = st.sidebar.selectbox(
     "Primary Ecological Focus",
-    ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria", "Oxygen Depletion / Hypoxia"]
+    ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria",]
 )
 
 # --- NEW: Continent Filter ---
@@ -30,18 +30,16 @@ continent = st.sidebar.selectbox(
 max_records = st.sidebar.slider("Maximum Articles to Retrieve", min_value=10, max_value=100, value=20, step=10)
 
 # Build the Boolean Query dynamically based on user selections
-base_water_terms = '(lake OR reservoir OR lagoon OR "freshwater ecosystem")'
-base_heat_terms = '(heatwave OR "extreme heat" OR "record temperature" OR "thermal stress")'
+base_water_terms = '("lake" OR "reservoir" OR "freshwater")'
+base_heat_terms = '("heatwave" OR "heat" OR "record temperature" OR "hot")'
 
 if eco_impact == "Fish Kills / Mortalities":
-    impact_terms = '("fish kill" OR "mass mortality" OR "dead fish")'
+    impact_terms = '("fish")'
 elif eco_impact == "Algal Blooms / Cyanobacteria":
-    impact_terms = '("algae bloom" OR cyanobacteria OR "toxic algae" OR microcystis)'
-elif eco_impact == "Oxygen Depletion / Hypoxia":
-    impact_terms = '(hypoxia OR anoxia OR "oxygen depletion" OR stratification)'
+    impact_terms = '("algae" OR "cyanobacteria" OR "toxic")'
 else:
     # "All Impacts" combines them using OR logic
-    impact_terms = '("fish kill" OR "algae bloom" OR cyanobacteria OR hypoxia OR "oxygen depletion")'
+    impact_terms = '("fish" OR "algae" OR "cyanobacteria" OR "toxic")'
 
 # --- NEW: Map Continents to Boolean Geo-Terms ---
 if continent == "North America":
