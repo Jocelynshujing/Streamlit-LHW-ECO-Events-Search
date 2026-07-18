@@ -115,18 +115,24 @@ def fetch_filtered_news(query, tier_choice, api_token, limit):
     return response.json()
 
 # --- Helper Function to check keyword presence in title ---
-def count_keywords_in_title(title, query_terms):
-    if not title: return 0
+import re
+
+def validate_title_relevance(title, water_terms_list):
+    """Checks if the title contains at least one term from both required categories."""
+    if not title:
+        return False
+    
     title_lower = title.lower()
-    # Extract words from your query terms, removing special characters/logic
-    import re
-    search_words = [word.lower() for word in re.findall(r'\b\w+\b', query_terms) 
-                    if word.lower() not in ['and', 'or', 'not', 'the', 'in', 'of']]
-    # Count how many unique keywords are present in the title
-    count = sum(1 for word in set(search_words) if word in title_lower)
-    return count
+    
+    # Check for presence of at least one water term
+    has_water = any(term.lower() in title_lower for term in water_terms_list)
+    
+    return has_water 
     
 # Fetch button
+# Define the lists for the validator (extracting keywords from your query strings)
+water_terms_list = ["lake", "reservoir", "freshwater"]
+
 if st.sidebar.button("Search Media Database", type="primary"):
     if not api_key:
         st.error("Please enter a valid NewsAPI key in the sidebar to run the search.")
@@ -142,15 +148,12 @@ if st.sidebar.button("Search Media Database", type="primary"):
             else:
                 articles = data.get("articles", [])
 
-                # --- APPLY TITLE FILTER ---
-                if min_keywords > 0:
-                    filtered_articles = [
-                        a for a in articles 
-                        if count_keywords_in_title(a.get("title", ""), final_query) >= min_keywords
-                    ]
-                else:
-                    filtered_articles = articles
-                
+               # Apply hard requirement: Title MUST have water AND heat terms
+                filtered_articles = [
+                    a for a in articles 
+                    if validate_title_relevance(a.get("title", ""), water_terms_list)
+                ]
+                            
                 # Update metrics and loop to use 'filtered_articles' instead of 'articles'
                 st.metric("Articles Matching Title Sensitivity", len(filtered_articles))
                 
