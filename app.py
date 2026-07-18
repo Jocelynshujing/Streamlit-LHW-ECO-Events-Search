@@ -17,7 +17,7 @@ api_key = st.sidebar.text_input("Enter NewsAPI Key", type="password", help="Get 
 st.sidebar.header("Filter Criteria")
 eco_impact = st.sidebar.selectbox(
     "Primary Ecological Focus",
-    ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria",]
+    ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria", "Ecosystem Degradation", "Water Supply & Scarcity"]
 )
 
 # --- NEW: Media Tier Filter ---
@@ -45,15 +45,19 @@ max_records = st.sidebar.slider("Maximum Articles to Retrieve", min_value=10, ma
 
 # Build the Boolean Query dynamically based on user selections
 base_water_terms = '("lake" OR "reservoir" OR "freshwater")'
-base_heat_terms = '("heatwave" OR "heat" OR "record temperature" OR "hot")'
+base_heat_terms = '("heatwave" OR "heat" OR "record temperature" OR "hot" OR "rising temperature" OR "thermal stress")'
 
 if eco_impact == "Fish Kills / Mortalities":
-    impact_terms = '("fish")'
+    impact_terms = '("fish kill" OR "mass mortality" OR "fish die-off" OR "mass casualty event")'
 elif eco_impact == "Algal Blooms / Cyanobacteria":
-    impact_terms = '("algae" OR "cyanobacteria" OR "toxic")'
+    impact_terms = '("algal bloom" OR "cyanobacteria" OR "blue-green algae" OR "harmful algal bloom" OR "microcystis")'
+elif eco_impact == "Ecosystem Degradation":
+    impact_terms = '("ecosystem collapse" OR "ecological degradation" OR "habitat loss" OR "biodiversity loss")'
+elif eco_impact == "Water Supply & Scarcity":
+    impact_terms = '("water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk")'
 else:
     # "All Impacts" combines them using OR logic
-    impact_terms = '("fish" OR "algae" OR "cyanobacteria" OR "toxic")'
+    impact_terms = '("fish kill" OR "mass mortality" OR "fish die-off" OR "mass casualty event" OR "algal bloom" OR "cyanobacteria" OR "blue-green algae" OR "harmful algal bloom" OR "microcystis" OR "ecosystem collapse" OR "ecological degradation" OR "habitat loss" OR "biodiversity loss" OR "water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk")'
 
 # --- NEW: Map Continents to Boolean Geo-Terms ---
 if continent == "North America":
