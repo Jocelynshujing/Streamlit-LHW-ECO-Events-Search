@@ -209,7 +209,7 @@ if st.sidebar.button("Search Media Database", type="primary"):
                         mime="text/csv"
                     )
                         
-            except requests.exceptions.HTTPError as err:
-                st.error(f"API Connection Failure: {err}")
-            except Exception as e:
-                st.error(f"An unexpected tracking error occurred: {e}")
+        except requests.exceptions.HTTPError as err:
+            st.error(f"API Connection Failure: {err}")
+        except Exception as e:
+            st.error(f"An unexpected tracking error occurred: {e}")
