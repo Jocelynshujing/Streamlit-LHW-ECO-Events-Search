@@ -33,13 +33,6 @@ continent = st.sidebar.selectbox(
     ["Global (All)", "North America", "Asia", "Europe", "Africa", "South America", "Oceania"]
 )
 
-# --- NEW: Title Keyword Sensitivity ---
-min_keywords = st.sidebar.slider(
-    "Minimum Keywords Required in Title", 
-    min_value=0, max_value=3, value=1,
-    help="Filter results to only show articles where at least this many of your query keywords appear in the title."
-)
-
 # Sidebar Result Limit
 max_records = st.sidebar.slider("Maximum Articles to Retrieve", min_value=10, max_value=100, value=20, step=10)
 
