@@ -47,7 +47,7 @@ elif eco_impact == "Algal Blooms / Cyanobacteria":
 elif eco_impact == "Ecosystem Degradation":
     impact_terms = '("ecosystem collapse" OR "ecological degradation" OR "habitat loss" OR "biodiversity loss")'
 elif eco_impact == "Water Supply / Scarcity":
-    impact_terms = '("water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk")'
+    impact_terms = '("water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk" OR "water restriction")'
 else:
     # "All Impacts" combines them using OR logic
     impact_terms = '("fish kill" OR "mass mortality" OR "algal bloom" OR "cyanobacteria" OR "harmful algal bloom" OR "habitat loss" OR "biodiversity loss" OR "water scarcity" OR "water shortage")'
