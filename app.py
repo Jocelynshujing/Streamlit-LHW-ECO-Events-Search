@@ -17,7 +17,7 @@ api_key = st.sidebar.text_input("Enter NewsAPI Key", type="password", help="Get 
 st.sidebar.header("Filter Criteria")
 eco_impact = st.sidebar.selectbox(
     "Primary Ecological Focus",
-    ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria", "Ecosystem Degradation", "Water Supply & Scarcity"]
+    ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria", "Ecosystem Degradation", "Water Supply / Scarcity"]
 )
 
 # --- NEW: Media Tier Filter ---
@@ -53,7 +53,7 @@ elif eco_impact == "Algal Blooms / Cyanobacteria":
     impact_terms = '("algal bloom" OR "cyanobacteria" OR "blue-green algae" OR "harmful algal bloom" OR "microcystis")'
 elif eco_impact == "Ecosystem Degradation":
     impact_terms = '("ecosystem collapse" OR "ecological degradation" OR "habitat loss" OR "biodiversity loss")'
-elif eco_impact == "Water Supply & Scarcity":
+elif eco_impact == "Water Supply / Scarcity":
     impact_terms = '("water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk")'
 else:
     # "All Impacts" combines them using OR logic
