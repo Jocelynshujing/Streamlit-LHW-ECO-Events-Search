@@ -65,11 +65,11 @@ else:
 
 # --- NEW: Hardcoded Elite Global Outlets (NewsAPI Unique Source IDs) ---
 # This ensures data is harvested exclusively from top-tier international publications
-elite_sources = "bbc-news,cnn,reuters,the-wall-street-journal,the-washington-post,associated-press,bloomberg,the-globe-and-mail,time,newsweek"
+#elite_sources = "bbc-news,cnn,reuters,the-wall-street-journal,the-washington-post,associated-press,bloomberg,the-globe-and-mail,time,newsweek"
 
 # Show the query to the user so they see the tool's inner logic
 with st.expander("Show Active Search & Media Filters"):
-    st.markdown(f"**Target Elite Outlets:** `{elite_sources}`")
+    #st.markdown(f"**Target Elite Outlets:** `{elite_sources}`")
     st.code(final_query, language="text")
 
 # --- Performance Optimization: Cached Ingestion Function ---
