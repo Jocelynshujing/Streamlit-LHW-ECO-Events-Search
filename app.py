@@ -33,6 +33,13 @@ continent = st.sidebar.selectbox(
     ["Global (All)", "North America", "Asia", "Europe", "Africa", "South America", "Oceania"]
 )
 
+# --- NEW: Title Keyword Sensitivity ---
+min_keywords = st.sidebar.slider(
+    "Minimum Keywords Required in Title", 
+    min_value=0, max_value=3, value=1,
+    help="Filter results to only show articles where at least this many of your query keywords appear in the title."
+)
+
 # Sidebar Result Limit
 max_records = st.sidebar.slider("Maximum Articles to Retrieve", min_value=10, max_value=100, value=20, step=10)
 
@@ -103,6 +110,18 @@ def fetch_filtered_news(query, tier_choice, api_token, limit):
     response.raise_for_status()
     return response.json()
 
+# --- Helper Function to check keyword presence in title ---
+def count_keywords_in_title(title, query_terms):
+    if not title: return 0
+    title_lower = title.lower()
+    # Extract words from your query terms, removing special characters/logic
+    import re
+    search_words = [word.lower() for word in re.findall(r'\b\w+\b', query_terms) 
+                    if word.lower() not in ['and', 'or', 'not', 'the', 'in', 'of']]
+    # Count how many unique keywords are present in the title
+    count = sum(1 for word in set(search_words) if word in title_lower)
+    return count
+    
 # Fetch button
 if st.sidebar.button("Search Media Database", type="primary"):
     if not api_key:
@@ -118,66 +137,79 @@ if st.sidebar.button("Search Media Database", type="primary"):
                 st.warning("No articles found matching this exact combination of environmental keywords within selected media tier.")
             else:
                 articles = data.get("articles", [])
+
+                # --- APPLY TITLE FILTER ---
+                if min_keywords > 0:
+                    filtered_articles = [
+                        a for a in articles 
+                        if count_keywords_in_title(a.get("title", ""), final_query) >= min_keywords
+                    ]
+                else:
+                    filtered_articles = articles
+                
+                # Update metrics and loop to use 'filtered_articles' instead of 'articles'
+                st.metric("Articles Matching Title Sensitivity", len(filtered_articles))
                 
                 # Layout Metrics Grid
                 m_col1, m_col2 = st.columns(2)
-                m_col1.metric("Articles Harvested", len(articles))
+                m_col1.metric("Articles Harvested", len(filtered_articles))
                 m_col2.metric("Current Stream Target", media_tier)
-                
                 st.markdown("---")
                 
-                # Display results loop
-                for idx, article in enumerate(articles):
-                    has_img = article.get("urlToImage")
-                    
-                    if has_img:
-                        text_col, img_col = st.columns([3, 1])
-                    else:
-                        text_col = st.container()
-                        img_col = None
+                if len(filtered_articles) == 0:
+                    st.warning("No articles matched the required number of keywords in the title.")
+                else:
+                    for idx, article in enumerate(filtered_articles):
+                        has_img = article.get("urlToImage")
                         
-                    with text_col:
-                        st.markdown(f"### {idx+1}. [{article['title']}]({article['url']})")
+                        if has_img:
+                            text_col, img_col = st.columns([3, 1])
+                        else:
+                            text_col = st.container()
+                            img_col = None
+                            
+                        with text_col:
+                            st.markdown(f"### {idx+1}. [{article['title']}]({article['url']})")
+                            
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.caption(f"📰 **Source:** {article['source']['name']}")
+                            with col2:
+                                date_str = article['publishedAt'][:10] if article.get('publishedAt') else "Unknown"
+                                st.caption(f"📅 **Published:** {date_str}")
+                            
+                            st.write(article['description'] if article['description'] else "*No description snippet available.*")
                         
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            st.caption(f"📰 **Source:** {article['source']['name']}")
-                        with col2:
-                            date_str = article['publishedAt'][:10] if article.get('publishedAt') else "Unknown"
-                            st.caption(f"📅 **Published:** {date_str}")
+                        if img_col and has_img:
+                            with img_col:
+                                try:
+                                    st.image(article["urlToImage"], use_container_width=True)
+                                except Exception:
+                                    pass
+                                    
+                        st.markdown("---")
                         
-                        st.write(article['description'] if article['description'] else "*No description snippet available.*")
+                    # Setup structured list for pandas file export
+                    flat_data = []
+                    for a in articles:
+                        flat_data.append({
+                            "Title": a.get("title"),
+                            "URL": a.get("url"),
+                            "Published Date": a.get("publishedAt")[:10] if a.get("publishedAt") else None,
+                            "Source Channel": a.get("source", {}).get("name"),
+                            "Description Summary": a.get("description")
+                        })
                     
-                    if img_col and has_img:
-                        with img_col:
-                            try:
-                                st.image(article["urlToImage"], use_container_width=True)
-                            except Exception:
-                                pass
-                                
-                    st.markdown("---")
-                    
-                # Setup structured list for pandas file export
-                flat_data = []
-                for a in articles:
-                    flat_data.append({
-                        "Title": a.get("title"),
-                        "URL": a.get("url"),
-                        "Published Date": a.get("publishedAt")[:10] if a.get("publishedAt") else None,
-                        "Source Channel": a.get("source", {}).get("name"),
-                        "Description Summary": a.get("description")
-                    })
-                
-                df = pd.DataFrame(flat_data)
-                csv_data = df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="📥 Export Filtered Media Data as CSV",
-                    data=csv_data,
-                    file_name=f"filtered_eco_reports_{datetime.now().strftime('%Y%m%d')}.csv",
-                    mime="text/csv"
-                )
-                    
-        except requests.exceptions.HTTPError as err:
-            st.error(f"API Connection Failure: {err}")
-        except Exception as e:
-            st.error(f"An unexpected tracking error occurred: {e}")
+                    df = pd.DataFrame(flat_data)
+                    csv_data = df.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="📥 Export Filtered Media Data as CSV",
+                        data=csv_data,
+                        file_name=f"filtered_eco_reports_{datetime.now().strftime('%Y%m%d')}.csv",
+                        mime="text/csv"
+                    )
+                        
+            except requests.exceptions.HTTPError as err:
+                st.error(f"API Connection Failure: {err}")
+            except Exception as e:
+                st.error(f"An unexpected tracking error occurred: {e}")
