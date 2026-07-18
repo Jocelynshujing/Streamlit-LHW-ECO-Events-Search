@@ -92,7 +92,7 @@ def fetch_filtered_news(query, tier_choice, api_token, limit):
     params = {
         "q": query,
         "pageSize": limit,
-        "sortBy": "publishedAt",
+        "sortBy": "relevancy", #"publishedAt",
         "language": "en",
         "apiKey": api_token
     }
