@@ -20,6 +20,13 @@ eco_impact = st.sidebar.selectbox(
     ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria",]
 )
 
+# --- NEW: Media Tier Filter ---
+media_tier = st.sidebar.selectbox(
+    "Media Outlets Tier",
+    ["All Media", "Elite Media Only", "Non-Elite Media Only"],
+    help="Select whether to search elite tier-1 networks, exclude them entirely, or view all media records."
+)
+
 # --- NEW: Continent Filter ---
 continent = st.sidebar.selectbox(
     "Continent / Region",
@@ -63,15 +70,17 @@ if geo_terms:
 else:
     final_query = f"{base_water_terms} AND {base_heat_terms} AND {impact_terms}"
 
-# --- NEW: Hardcoded Elite Global Outlets (NewsAPI Unique Source IDs) ---
-# This ensures data is harvested exclusively from top-tier international publications
-#elite_sources = "bbc-news,cnn,reuters,the-wall-street-journal,the-washington-post,associated-press,bloomberg,the-globe-and-mail,time,newsweek"
+# --- Hardcoded Media Tiers Configurations ---
+# Target Elite Source IDs for tracking
+elite_sources = "bbc-news,cnn,reuters,the-wall-street-journal,the-washington-post,associated-press,bloomberg,the-globe-and-mail,time,newsweek"
+# Matching Domains used to safely exclude them when Non-Elite mode is triggered
+elite_domains_to_exclude = "bbc.co.uk,cnn.com,reuters.com,wsj.com,washingtonpost.com,apnews.com,bloomberg.com,theglobeandmail.com,time.com,newsweek.com"
 
-# Show the query to the user so they see the tool's inner logic
-with st.expander("Show Active Search & Media Filters"):
-    #st.markdown(f"**Target Elite Outlets:** `{elite_sources}`")
+# Show active search filters in layout
+with st.expander("Show Active Search & Media Filter Logic"):
+    st.markdown(f"**Selected Media Mode:** `{media_tier}`")
     st.code(final_query, language="text")
-
+    
 # --- Performance Optimization: Cached Ingestion Function ---
 @st.cache_data(show_spinner=False, ttl=1800)  # Keeps data cached for 30 minutes to reduce layout API overhead
 def fetch_elite_news(query, sources_str, api_token, limit):
@@ -79,11 +88,17 @@ def fetch_elite_news(query, sources_str, api_token, limit):
     url = "https://newsapi.org/v2/everything"
     params = {
         "q": query,
-        "sources": sources_str,    # Dynamically forces only our pre-filtered elite sources
         "pageSize": limit,
         "sortBy": "publishedAt",   # Brings back breaking live news priority
+        "language": "en",
         "apiKey": api_token
     }
+    # Inject routing logic based on user's Media Tier selection
+    if tier_choice == "Elite Media Only":
+        params["sources"] = elite_sources
+    elif tier_choice == "Non-Elite Media Only":
+        params["excludeDomains"] = elite_domains_to_exclude
+        
     response = requests.get(url, params=params, timeout=12)
     response.raise_for_status()
     return response.json()
@@ -94,28 +109,27 @@ if st.sidebar.button("Search Media Database", type="primary"):
         st.error("Please enter a valid NewsAPI key in the sidebar to run the search.")
     else:
         try:
-            with st.spinner("Filtering tier-1 publication matrix..."):
-                data = fetch_elite_news(final_query, elite_sources, api_key, max_records)
+            with st.spinner("Harvesting data from targeted publication matrix..."):
+                data = fetch_filtered_news(final_query, media_tier, api_key, max_records)
                 
             if data.get("status") == "error":
                 st.error(f"API Error: {data.get('message')}")
             elif data.get("totalResults") == 0 or not data.get("articles"):
-                st.warning("No elite articles found matching this exact combination of environmental keywords.")
+                st.warning("No articles found matching this exact combination of environmental keywords within selected media tier.")
             else:
                 articles = data.get("articles", [])
                 
                 # Layout Metrics Grid
                 m_col1, m_col2 = st.columns(2)
-                m_col1.metric("Elite Media Hits", len(articles))
-                m_col2.metric("Target Network Pool", "10 Global Outlets")
+                m_col1.metric("Articles Harvested", len(articles))
+                m_col2.metric("Current Stream Target", media_tier)
                 
                 st.markdown("---")
                 
-                # Display results in clean UI elements
+                # Display results loop
                 for idx, article in enumerate(articles):
                     has_img = article.get("urlToImage")
                     
-                    # Split view layout if post has thumbnail media
                     if has_img:
                         text_col, img_col = st.columns([3, 1])
                     else:
@@ -125,16 +139,13 @@ if st.sidebar.button("Search Media Database", type="primary"):
                     with text_col:
                         st.markdown(f"### {idx+1}. [{article['title']}]({article['url']})")
                         
-                        # Metadata tags
                         col1, col2 = st.columns(2)
                         with col1:
                             st.caption(f"📰 **Source:** {article['source']['name']}")
                         with col2:
-                            # Formatting the ISO timestamp
                             date_str = article['publishedAt'][:10] if article.get('publishedAt') else "Unknown"
                             st.caption(f"📅 **Published:** {date_str}")
                         
-                        # Article description/snippet
                         st.write(article['description'] if article['description'] else "*No description snippet available.*")
                     
                     if img_col and has_img:
@@ -142,11 +153,11 @@ if st.sidebar.button("Search Media Database", type="primary"):
                             try:
                                 st.image(article["urlToImage"], use_container_width=True)
                             except Exception:
-                                pass # Suppress errors for broken external links
+                                pass
                                 
                     st.markdown("---")
                     
-                # Setup structured data list for pandas export file
+                # Setup structured list for pandas file export
                 flat_data = []
                 for a in articles:
                     flat_data.append({
@@ -160,13 +171,13 @@ if st.sidebar.button("Search Media Database", type="primary"):
                 df = pd.DataFrame(flat_data)
                 csv_data = df.to_csv(index=False).encode('utf-8')
                 st.download_button(
-                    label="📥 Export Elite Media Data as CSV",
+                    label="📥 Export Filtered Media Data as CSV",
                     data=csv_data,
-                    file_name=f"elite_eco_reports_{datetime.now().strftime('%Y%m%d')}.csv",
+                    file_name=f"filtered_eco_reports_{datetime.now().strftime('%Y%m%d')}.csv",
                     mime="text/csv"
                 )
                     
         except requests.exceptions.HTTPError as err:
-            st.error(f"API Connection Failure: Check your credential string. Detail: {err}")
+            st.error(f"API Connection Failure: {err}")
         except Exception as e:
             st.error(f"An unexpected tracking error occurred: {e}")
