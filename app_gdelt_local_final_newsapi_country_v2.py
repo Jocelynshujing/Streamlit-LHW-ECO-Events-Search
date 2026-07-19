@@ -178,9 +178,9 @@ ELITE_DOMAINS = "bbc.co.uk,cnn.com,reuters.com,wsj.com,washingtonpost.com,apnews
 
 GDELT_DATA_DIR = "gdelt_lake_data/yearly"
 
-st.set_page_config(page_title="Lake Eco-Crisis Explorer", page_icon="🌊", layout="wide")
+st.set_page_config(page_title="Lake-Heatwave-Eco-Crisis Explorer", page_icon="🤩", layout="wide")
 
-st.title("🌊 Lake Eco-Crisis Media Explorer")
+st.title("Lake-Heatwave-Eco-Crisis Media Explorer")
 st.markdown("""
 This tool analyzes **locally-downloaded GDELT historical data** and **real-time NewsAPI**
 to track global lake degradation events linked to temperature and ecological stress.
