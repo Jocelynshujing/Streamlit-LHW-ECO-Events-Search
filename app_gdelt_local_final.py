@@ -42,7 +42,7 @@ st.sidebar.header("Filter Criteria")
 eco_impact = st.sidebar.selectbox(
     "Primary Ecological Focus",
     ["All Impacts", "Fish Kills / Mortalities", "Algal Blooms / Cyanobacteria", 
-     "Ecosystem Degradation", "Water Supply / Scarcity"]
+     "Ecosystem Degradation", "Water Supply / Scarcity", "Oxygen Depletion"]
 )
 
 # Media tier (for NewsAPI tab)
@@ -77,7 +77,8 @@ theme_filter_map = {
     "Fish Kills / Mortalities": "FISH_KILL",
     "Algal Blooms / Cyanobacteria": "ALGAL_BLOOM",
     "Ecosystem Degradation": "ECOSYSTEM_DEGRADATION",
-    "Water Supply / Scarcity": "WATER_SCARCITY"
+    "Water Supply / Scarcity": "WATER_SCARCITY",
+    "Oxygen Depletion": "OXYGEN_DEPLETION"
 }
 selected_theme = theme_filter_map[eco_impact]
 
@@ -398,15 +399,17 @@ with tab2:
     base_heat_terms = '("heatwave" OR "heat" OR "record temperature" OR "hot" OR "rising temperature" OR "thermal stress")'
 
     if eco_impact == "Fish Kills / Mortalities":
-        impact_terms = '("fish kill" OR "mass mortality" OR "fish die-off" OR "mass casualty event")'
+        impact_terms = '("fish_kill" OR "fish_mortality" OR "fish_die_off" OR "mass_mortality" OR "dead_fish" OR "fish_death")'
     elif eco_impact == "Algal Blooms / Cyanobacteria":
-        impact_terms = '("algal bloom" OR "cyanobacteria" OR "blue-green algae" OR "harmful algal bloom" OR "microcystis")'
+        impact_terms = '("algal_bloom" OR "cyanobacteria" OR "blue_green_algae" OR "harmful_algal" OR "microcystis" OR "eutrophication" OR "bloom" OR "toxic_algae")'
     elif eco_impact == "Ecosystem Degradation":
-        impact_terms = '("ecosystem collapse" OR "ecological degradation" OR "habitat loss" OR "biodiversity loss")'
+        impact_terms = '("ecosystem_collapse" OR "ecological_degradation" OR "habitat_loss" OR "biodiversity_loss" OR "wetland_loss" OR "environmental_degradation")'
     elif eco_impact == "Water Supply / Scarcity":
-        impact_terms = '("water scarcity" OR "water shortage" OR "reduced water supply" OR "drought stress" OR "potable water risk" OR "water restriction")'
+        impact_terms = '("water_scarcity" OR "water_shortage" OR "drought" OR "water_restriction" OR "low_water_level" OR "desiccation")'
+    elif eco_impact == "Oxygen Depletion":
+        impact_terms = '("hypoxia" OR "anoxia" OR "oxygen_depletion" OR "dead_zone")'
     else:
-        impact_terms = '("fish kill" OR "mass mortality" OR "algal bloom" OR "cyanobacteria" OR "harmful algal bloom" OR "habitat loss" OR "biodiversity loss" OR "water scarcity" OR "water shortage")'
+        impact_terms = '("fish kill" OR "mass mortality" OR "algal bloom" OR "cyanobacteria" OR "harmful algal bloom" OR "habitat loss" OR "biodiversity loss" OR "water scarcity" OR "water shortage" OR "hypoxia", "oxygen depletion")'
 
     # Geo terms
     if continent == "North America":
