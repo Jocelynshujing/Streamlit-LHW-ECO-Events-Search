@@ -10,7 +10,7 @@ import re
 
 # Path to your downloaded GDELT data folder
 # Update this to point to your actual data directory
-GDELT_DATA_DIR = "./gdelt_lake_data"  # ← UPDATE THIS PATH
+GDELT_DATA_DIR = "/gdelt_lake_data"  # ← UPDATE THIS PATH
 
 # Page configurations
 st.set_page_config(page_title="Lake Eco-Crisis Explorer", page_icon="🌊", layout="wide")
