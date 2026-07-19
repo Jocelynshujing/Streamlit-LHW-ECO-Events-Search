@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 from datetime import datetime
 import re
+
+pip install google-cloud-bigquery
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
