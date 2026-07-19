@@ -130,7 +130,7 @@ def fetch_gdelt_historical(theme_keyword, start_yr, end_yr):
         start_yr = end_yr - 10
     
     start_date_int = int(f"{start_yr}0101000000")
-    end_date_int = int(f"{end_yr}1231235959")
+    end_date_int = int(f"{end_yr}0102000000") #1231235959
     
     # Use the passed theme_keyword instead of hardcoded values
     # Add explicit partition hinting and reduce string scanning
