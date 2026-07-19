@@ -3,14 +3,19 @@ import pandas as pd
 from datetime import datetime
 from pathlib import Path
 import re
+import os
+import streamlit as st
 
+st.write("Current directory:", os.getcwd())
+st.write("Files in repo:", os.listdir("."))
+st.write("Files in gdelt_lake_data:", os.listdir("gdelt_lake_data") if os.path.exists("gdelt_lake_data") else "Folder not found!")
 # ═══════════════════════════════════════════════════════════════
 # CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
 
 # Path to your downloaded GDELT data folder
 # Update this to point to your actual data directory
-GDELT_DATA_DIR = "gdelt_lake_data"  # ← UPDATE THIS PATH
+GDELT_DATA_DIR = "gdelt_lake_data/yearly"  # ← UPDATE THIS PATH
 
 # Page configurations
 st.set_page_config(page_title="Lake Eco-Crisis Explorer", page_icon="🌊", layout="wide")
