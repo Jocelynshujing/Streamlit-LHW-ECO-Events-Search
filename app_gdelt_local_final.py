@@ -6,9 +6,9 @@ import re
 import os
 import streamlit as st
 
-st.write("Current directory:", os.getcwd())
-st.write("Files in repo:", os.listdir("."))
-st.write("Files in gdelt_lake_data:", os.listdir("gdelt_lake_data") if os.path.exists("gdelt_lake_data") else "Folder not found!")
+#st.write("Current directory:", os.getcwd())
+#st.write("Files in repo:", os.listdir("."))
+#st.write("Files in gdelt_lake_data:", os.listdir("gdelt_lake_data") if os.path.exists("gdelt_lake_data") else "Folder not found!")
 # ═══════════════════════════════════════════════════════════════
 # CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
