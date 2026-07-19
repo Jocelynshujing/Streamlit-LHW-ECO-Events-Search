@@ -52,7 +52,7 @@ GDELT_DATA_DIR = "gdelt_lake_data/yearly"  # Relative path for Streamlit Cloud
 # Page configurations
 st.set_page_config(page_title="Lake Eco-Crisis Explorer", page_icon="🌊", layout="wide")
 
-st.title("🌊 Lake Eco-Crisis Media Explorer")
+st.title("🌊 Lake-Heatwave-EcoCrisis Media Explorer")
 st.markdown("""
 This tool analyzes **locally-downloaded GDELT historical data** and **real-time NewsAPI** 
 to track global lake degradation events linked to temperature and ecological stress.
