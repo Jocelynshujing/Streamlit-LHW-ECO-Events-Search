@@ -123,22 +123,40 @@ def fetch_filtered_news(query, tier_choice, api_token, limit):
 def fetch_gdelt_historical(theme_keyword, start_yr, end_yr):
     if bq_client is None:
         return pd.DataFrame()
-        
+    
+    # Prevent runaway queries — cap at 10 years max per query
+    if end_yr - start_yr > 10:
+        st.warning("Date range too wide. Limiting to last 10 years to reduce query cost.")
+        start_yr = end_yr - 10
+    
     start_date_int = int(f"{start_yr}0101000000")
     end_date_int = int(f"{end_yr}1231235959")
     
-    # Efficiently querying indexed partition boundaries for the 30-year sweep
+    # Use the passed theme_keyword instead of hardcoded values
+    # Add explicit partition hinting and reduce string scanning
     query = f"""
         SELECT 
             SUBSTR(CAST(DATE AS STRING), 1, 4) AS Year, 
             COUNT(*) as MentionCount
         FROM `gdelt-bq.gdeltv2.gkg` 
-        WHERE DATE >= {start_date_int} AND DATE <= {end_date_int}
-          AND (V2Themes LIKE '%ENV_WATER_SCARCITY%' OR V2Themes LIKE '%ENV_CLIMATECHANGE%')
+        WHERE DATE >= {start_date_int} 
+          AND DATE <= {end_date_int}
+          AND V2Themes LIKE '%{theme_keyword}%'
           AND (LOWER(V2Themes) LIKE '%lake%' OR LOWER(V2Themes) LIKE '%reservoir%')
         GROUP BY Year
         ORDER BY Year ASC
     """
+    
+    # Estimate bytes before running (helpful for debugging quota issues)
+    job_config = bigquery.QueryJobConfig(dry_run=True)
+    dry_run_job = bq_client.query(query, job_config=job_config)
+    bytes_processed = dry_run_job.total_bytes_processed
+    
+    # Warn if query will scan more than 100 GB
+    if bytes_processed > 100 * 1024**3:
+        st.warning(f"⚠️ This query will scan ~{bytes_processed / 1024**3:.1f} GB. Consider narrowing the year range.")
+    
+    # Execute actual query
     query_job = bq_client.query(query)
     results = query_job.result()
     return results.to_dataframe()
