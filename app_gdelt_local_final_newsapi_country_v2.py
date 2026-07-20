@@ -176,7 +176,7 @@ ELITE_DOMAINS = "bbc.co.uk,cnn.com,reuters.com,wsj.com,washingtonpost.com,apnews
 # CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
 
-GDELT_DATA_DIR = "gdelt_lake_data/yearly"
+GDELT_DATA_DIR = "./gdelt_lake_data/yearly"
 
 st.set_page_config(page_title="Lake-Heatwave-Eco-Crisis Explorer", page_icon="🤩", layout="wide")
 
